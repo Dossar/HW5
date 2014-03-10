@@ -30,7 +30,7 @@ public:
 private:
     int m; // Rows
     int n; // Columns
-    int data[m][n];
+    int **data; // We don't know the size yet, so this is just two dimensional reference to memory
     
 };
 
@@ -47,6 +47,11 @@ Matrix::Matrix() {
         if (m < 0 || n < 0)
             cout << "Cannot have negative dimensions, try again." << endl;
     } while (m < 0 || n < 0);
+    
+    // Make dynamic matrix. A matrix is an array of arrays.
+    data = new int*[m]; // Allocate for each row.
+    for (int i = 0; i < m ; i++ )
+        data[i] = new int[n]; // Allocate for each column.
     
     // File the matrix with all zeros.
     int i, j;
@@ -72,6 +77,11 @@ Matrix::Matrix(int diagvalue) {
         if( m<0 || n<0 )
             cout << "Cannot have negative dimensions, try again." << endl;
     } while ( m != n || m<0 || n<0 );
+    
+    // Make dynamic matrix. A matrix is an array of arrays.
+    data = new int*[m];
+    for (int i = 0; i < m ; i++ )
+        data[i] = new int[n];
     
     // Make the diagonal matrix after inputting square dimensions.
     int i, j;
@@ -102,8 +112,9 @@ Matrix::~Matrix()
 {
     // Delete every row in the matrix.
     int i;
-    for( i = 0 ; i < m ; i++ )
-        delete [] m[i];
+    for ( i = 0 ; i < m ; i++ )
+        delete [] data[i];
+    delete [] data;
 }
 
 
@@ -146,7 +157,7 @@ Matrix operator *(const Matrix& Mat1, const Matrix& Mat2){
     // First matrix columns must match rows of second matrix for multiplication.
     if( Mat1.n != Mat2.m ){
         cout << "Columns of first matrix do not match rows of second matrix." << endl;
-        return;
+        return Mat1;
     }
     // Getting past the if statement means we have valid multiplication dimensions.
     else {
@@ -256,6 +267,9 @@ bool operator ==(const Matrix& Mat1, const Matrix& Mat2){
 int main() {
     
     typedef Matrix* MatPtr;
+    
+    Matrix A;
+    cout << A;
 
     ifstream fin;
     fin.open("file.txt");
