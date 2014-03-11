@@ -2,7 +2,7 @@
  * File:   hw5.cpp
  * Author: Roy Van Liew and Saqib Zahid
  *
- * Last updated on March 9th, 2014, 5:03 PM
+ * Last updated on March 11th, 2014, 6:08 PM
  */
 
 #include <iostream>
@@ -25,8 +25,9 @@ public:
     friend Matrix operator +(const Matrix& Mat1, const Matrix& Mat2);
     friend Matrix operator -(const Matrix& Mat1);
     friend Matrix operator -(const Matrix& Mat1, const Matrix& Mat2);
-    friend bool operator ==(const Matrix& Mat1, const Matrix& Mat2);
+    friend bool operator ==(const Matrix& Mat1, const Matrix& Mat2); 
     friend ifstream& operator >>(ifstream& in, Matrix& Mat);
+    Matrix& operator=(const Matrix& Mat2);
     
 private:
     int m; // Rows
@@ -304,29 +305,48 @@ bool operator ==(const Matrix& Mat1, const Matrix& Mat2){
     
 }
 
+// Overloaded assignment operator
+// = is a special case. It has to be a nonstatic member function.
+// Cannot declare = as a friend function, also needs exactly one parameter
+Matrix& Matrix::operator=(const Matrix& Mat2){
+    
+    if( ( m != Mat2.m ) || ( n != Mat2.n ) ){
+        cout << "Matrices must be of equal dimensions for assignment." << endl;
+    }
+    else {
+        int i, j;
+        // Change matrix on left side of assignment to matrix on right side.
+        for (i = 0; i < m; i++) {
+            for (j = 0; j < n; j++)
+                data[i][j] = Mat2.data[i][j];
+        }
+    }
+    
+}
+
 int main() {
     
     cout << "Make Zero Matrix. Make sure dimensions are 3x2." << endl;
     Matrix Z;
-    cout << "[Matrix Z] Zero Matrix:" << endl;
+    cout << "**Matrix Z** Zero Matrix:" << endl;
     cout << Z;
 
     ifstream fin;
     fin.open("file.txt");
     
-    cout << "[Matrix A] input from file. Make sure dimensions are 3x2." << endl;
+    cout << "**Matrix A** input from file. Make sure dimensions are 3x2." << endl;
     Matrix A;
     fin >> A;
     cout << A;
     
     Matrix B(A);
-    cout << "[Matrix B] copy of A:" << endl;
+    cout << "**Matrix B** copy of A:" << endl;
     cout << B;
     
     if( B==A )
         cout << "Yes, A and B are the same.\n" << endl;
     
-    cout << "[Matrix C] input from file. Make sure dimensions are 3x2." << endl;
+    cout << "**Matrix C** input from file. Make sure dimensions are 3x2." << endl;
     Matrix C;
     fin >> C;
     cout << C;
@@ -334,19 +354,18 @@ int main() {
     
     cout << "Make diagonal matrix of 1s. Make sure dimensions are 2x2." << endl;
     Matrix E(1);
-    cout << "[Matrix E] Matrix of 1-diagonal:" << endl;
+    cout << "**Matrix E** Matrix of 1-diagonal:" << endl;
     cout << E;
     
     cout << "Make diagonal matrix of 2s. Make sure dimensions are 2x2." << endl;
     Matrix D(2);
-    cout << "[Matrix D] Matrix of 2-diagonal:" << endl;
+    cout << "**Matrix D** Matrix of 2-diagonal:" << endl;
     cout << D;
+    
+    // Check the overloaded operators
     
     if( A==B && !(A==C) )
         cout << "A == B, but A != C." << endl;
-    
-//    if( !(A==C) )
-//        cout << "A is not equal to C." << endl;
     
     if( A-B==Z )
         cout << "A-B is the Zero Matrix." << endl;
@@ -358,7 +377,16 @@ int main() {
         cout << "A+B == A*D is true." << endl;
     
     if( A*E==A )
-        cout << "A*E == A is true." << endl; 
+        cout << "A*E == A is true.\n" << endl;
+    
+    // Check assignment operator
+    
+    cout << "Now assign C to A." << endl;
+    A=C; // Set Matrix A to C.
+    if( !(A==B) )
+        cout << "A != B." << endl;
+    if( A==C )
+        cout << "A == C." << endl;    
     
     return 0;
     
