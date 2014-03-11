@@ -17,6 +17,7 @@ class Matrix
 public:
     Matrix(); // Default constructor
     Matrix(int diagvalue); // Constructor with parameters
+    Matrix(int rows, int columns); // For our arithmetic operations
     Matrix(const Matrix& M); // Copy constructor
     ~Matrix(); // Destructor
     friend ostream& operator <<(ostream& out, const Matrix& Mat);
@@ -37,6 +38,8 @@ private:
 // Default constructor. Creates zero matrix.
 Matrix::Matrix() {
     
+    int i, j;
+    
     // Matrix dimensions must be positive.
     do {
         cout << "Input the dimensions of your matrix." << endl;
@@ -50,11 +53,10 @@ Matrix::Matrix() {
     
     // Make dynamic matrix. A matrix is an array of arrays.
     data = new int*[m]; // Allocate for each row.
-    for (int i = 0; i < m ; i++ )
+    for (i = 0; i < m ; i++ )
         data[i] = new int[n]; // Allocate for each column.
     
     // File the matrix with all zeros.
-    int i, j;
     for (i = 0; i < m ; i++) {
         for (j = 0; j < n ; j++)
             data[i][j] = 0;
@@ -64,6 +66,8 @@ Matrix::Matrix() {
 
 // Constructor with parameters. Creates diagonal matrix.
 Matrix::Matrix(int diagvalue) {
+    
+    int i, j;
     
     // For a diagonal matrix its dimensions must be positive and a square.
     do {
@@ -80,12 +84,11 @@ Matrix::Matrix(int diagvalue) {
     
     // Make dynamic matrix. A matrix is an array of arrays.
     data = new int*[m];
-    for (int i = 0; i < m ; i++ )
+    for (i = 0; i < m ; i++ )
         data[i] = new int[n];
     
     // Make the diagonal matrix after inputting square dimensions.
-    int i, j;
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < m; i++) {
         // Initialize entire row to zero first, then insert number into diagonal.
         for (j = 0; j < n; j++)
             data[i][j] = 0;
@@ -96,13 +99,43 @@ Matrix::Matrix(int diagvalue) {
 
 }
 
+// Arithmetic Matrix constructor
+Matrix::Matrix(int rows, int columns) {
+    
+    int i, j;
+    m = rows;
+    n = columns;
+    
+    // Make dynamic matrix. A matrix is an array of arrays.
+    data = new int*[m];
+    for (i = 0; i < m ; i++ )
+        data[i] = new int[n];
+    
+    // File the matrix with all zeros.
+    for (i = 0; i < m ; i++) {
+        for (j = 0; j < n ; j++)
+            data[i][j] = 0;
+    }
+
+}
+
 // Copy constructor
 Matrix::Matrix(const Matrix& M)
 {
+    
     int i, j;
-    for (i = 0; i < n ; i++) {
+    m = M.m;
+    n = M.n;
+    
+    // Make dynamic matrix. A matrix is an array of arrays.
+    data = new int*[m]; // Allocate for each row.
+    for (i = 0; i < m ; i++ )
+        data[i] = new int[n]; // Allocate for each column.
+    
+    // Copy elements from referenced matrix.
+    for (i = 0; i < m ; i++) {
         for (j = 0; j < n ; j++)
-            data[i][j] = M.data[i][j]; // Copy elements from our referenced matrix into our new matrix.
+            data[i][j] = M.data[i][j];
     }
     
 }
@@ -154,6 +187,8 @@ ostream& operator <<(ostream& out, const Matrix& Mat){
 // Overloaded multiplication operator
 Matrix operator *(const Matrix& Mat1, const Matrix& Mat2){
     
+
+    
     // First matrix columns must match rows of second matrix for multiplication.
     if( Mat1.n != Mat2.m ){
         cout << "Columns of first matrix do not match rows of second matrix." << endl;
@@ -161,10 +196,14 @@ Matrix operator *(const Matrix& Mat1, const Matrix& Mat2){
     }
     // Getting past the if statement means we have valid multiplication dimensions.
     else {
-        Matrix multMat;
-        int sum = 0;
-        int i, j, k;
         // i for Mat1 rows, j for Mat2 columns, k for Mat2 rows and Mat1 columns.
+        int i, j, k;
+        
+        // Product matrix dimensions is first matrix rows by second matrix columns.
+        Matrix multMat( Mat1.m , Mat2.n );
+        
+        int sum = 0;
+        
         // For each row of Mat1 and for each column of Mat2, multiply the matrices.
         // We get Mat1.m by Mat2.n dimensions product matrix after multiplication.
         for (i = 0; i < Mat1.m ; i++) {
@@ -191,7 +230,7 @@ Matrix operator +(const Matrix& Mat1, const Matrix& Mat2){
     }
     // Getting past the if statement means both matrices have the same dimensions.
     else {
-        Matrix addMat;
+        Matrix addMat( Mat1.m , Mat1.n );
         int sum = 0;
         int i, j;
         for (i = 0; i < Mat1.m; i++) {
@@ -208,6 +247,7 @@ Matrix operator +(const Matrix& Mat1, const Matrix& Mat2){
 // Overloaded binary minus (subtraction) operator
 Matrix operator -(const Matrix& Mat1, const Matrix& Mat2){
     
+    
     // Check that the dimensions of both matrices are equal first.
     if( ( Mat1.m != Mat2.m ) || ( Mat1.n != Mat2.n ) ){
         cout << "Matrices must be of equal dimensions for subtraction." << endl;
@@ -215,7 +255,7 @@ Matrix operator -(const Matrix& Mat1, const Matrix& Mat2){
     }
     // Getting past the if statement means both matrices have the same dimensions.
     else {
-        Matrix subMat;
+        Matrix subMat( Mat1.m , Mat1.n );
         int diff = 0;
         int i, j;
         for (i = 0; i < Mat1.m; i++) {
@@ -232,7 +272,7 @@ Matrix operator -(const Matrix& Mat1, const Matrix& Mat2){
 // Overloaded unary minus operator
 Matrix operator -(const Matrix& Mat1){
     
-    Matrix minusMat;
+    Matrix minusMat( Mat1.m , Mat1.n );
     int i, j;
     for (i = 0; i < Mat1.m ; i++) {
         for (j = 0; j < Mat1.n ; j++)
@@ -266,73 +306,59 @@ bool operator ==(const Matrix& Mat1, const Matrix& Mat2){
 
 int main() {
     
-    typedef Matrix* MatPtr;
-    
-    Matrix A;
-    cout << A;
+    cout << "Make Zero Matrix. Make sure dimensions are 3x2." << endl;
+    Matrix Z;
+    cout << "[Matrix Z] Zero Matrix:" << endl;
+    cout << Z;
 
     ifstream fin;
     fin.open("file.txt");
+    
+    cout << "[Matrix A] input from file. Make sure dimensions are 3x2." << endl;
+    Matrix A;
+    fin >> A;
+    cout << A;
+    
+    Matrix B(A);
+    cout << "[Matrix B] copy of A:" << endl;
+    cout << B;
+    
+    if( B==A )
+        cout << "Yes, A and B are the same.\n" << endl;
+    
+    cout << "[Matrix C] input from file. Make sure dimensions are 3x2." << endl;
+    Matrix C;
+    fin >> C;
+    cout << C;
     fin.close(); // We are now done with our input file, so close it.
     
-//    // Z is zero matrix.
-//    Matrix Z;
-//    cout << "\nMatrix Z (Zero Matrix):" << endl;
-//    cout << Z;
-//    
-//    // D is 2 diagonal, E is 1 diagonal.
-//    Matrix D(2);
-//    cout << "Matrix D (Diagonal-2 Matrix):" << endl;
-//    cout << D;
-//    Matrix E(1);
-//    cout << "Matrix E (Diagonal-1 Matrix):" << endl;
-//    cout << E;
-//    
-//    // Initialize A to zero first, then input stuff.
-//    Matrix A;
-//    fin >> A; // input works.
-//    cout << "Matrix A (from file):" << endl;
-//    cout << A;
-//    
-//    // B is a copy of A.
-//    Matrix B(A);
-//    cout << "Matrix B (copy of A):" << endl;
-//    cout << B;
-//    
-//    // Check that B is indeed a copy of A.
-//    if( B==A )
-//        cout << "Yes, B==A." << endl; // equality works.
-//    
-//    // Check that our arithmetic operators work.
-//    cout << "\nResult from A+D:" << endl;
-//    cout << A+D; // add works.
-//    cout << "Result from A-D:" << endl;
-//    cout << A-D; // binary - works
-//    cout << "Result from A*D:" << endl;
-//    cout << A*D; // mult works.
-//    
-//    // Check that the equality operator works.
-//    if( A-B==Z )
-//        cout << "Yes, A-B==Z." << endl;   
-//    if( -A==Z-A )
-//        cout << "\nYes, –A==Z-A." << endl;
-//    if( A+B==A*D )
-//        cout << "\nYes, A+B==A*D." << endl;
-//    if( A*E==A )
-//        cout << "\nYes, A*E==A." << endl;
-//    
-//    cout << "\nThe determinant of D is: " << D.det() << endl;
-//    cout << "The determinant of E is: " << E.det() << endl;
-//    
-//    // Initialize C to zero first, then input stuff.
-//    Matrix C;
-//    fin >> C; // input works.
-//    cout << "\nMatrix C (from file):" << endl;
-//    cout << C;
+    cout << "Make diagonal matrix of 1s. Make sure dimensions are 2x2." << endl;
+    Matrix E(1);
+    cout << "[Matrix E] Matrix of 1-diagonal:" << endl;
+    cout << E;
     
-//    
-//    if( (A*C).det()==A.det()*C.det() )
-//        cout << "Yes, det(A*C) is the same as det(A)*det(C)." << endl;   
+    cout << "Make diagonal matrix of 2s. Make sure dimensions are 2x2." << endl;
+    Matrix D(2);
+    cout << "[Matrix D] Matrix of 2-diagonal:" << endl;
+    cout << D;
+    
+    if( A==B && !(A==C) )
+        cout << "A == B, but A != C." << endl;
+    
+//    if( !(A==C) )
+//        cout << "A is not equal to C." << endl;
+    
+    if( A-B==Z )
+        cout << "A-B is the Zero Matrix." << endl;
+    
+    if( (Z-A)==(-A) )
+        cout << "–A == Z-A is true." << endl;
+    
+    if( A+B==A*D )
+        cout << "A+B == A*D is true." << endl;
+    
+    if( A*E==A )
+        cout << "A*E == A is true." << endl; 
     
     return 0;
     
