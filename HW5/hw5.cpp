@@ -14,12 +14,14 @@ using namespace std;
 
 class Matrix
 {
+    
 public:
     Matrix(); // Default constructor
     Matrix(int diagvalue); // Constructor with parameters
     Matrix(int rows, int columns); // For our arithmetic operations
     Matrix(const Matrix& M); // Copy constructor
     ~Matrix(); // Destructor
+    // These are our overloaded operators. = is a special case, not a friend function.
     friend ostream& operator <<(ostream& out, const Matrix& Mat);
     friend Matrix operator *(const Matrix& Mat1, const Matrix& Mat2);
     friend Matrix operator +(const Matrix& Mat1, const Matrix& Mat2);
@@ -101,6 +103,7 @@ Matrix::Matrix(int diagvalue) {
 }
 
 // Arithmetic Matrix constructor
+// This is for when we do math, such as +, *, -, etc.
 Matrix::Matrix(int rows, int columns) {
     
     int i, j;
@@ -125,6 +128,7 @@ Matrix::Matrix(const Matrix& M)
 {
     
     int i, j;
+    // Set dimensions equal to passed Matrix.
     m = M.m;
     n = M.n;
     
@@ -157,7 +161,7 @@ ifstream& operator >>(ifstream& in, Matrix& Mat){
     
     int i, j;
     
-    // Read in 9 elements from our file.
+    // Read in elements from our input file.
     for( i = 0 ; i < Mat.m ; i++ ){
         for( j = 0 ; j < Mat.n ; j++ ){
             // fin ignores whitespace and newlines
@@ -174,7 +178,7 @@ ifstream& operator >>(ifstream& in, Matrix& Mat){
 ostream& operator <<(ostream& out, const Matrix& Mat){
     
     int i, j;
-    //cout << "Matrix:" << endl;
+    // Print out matrix, each element in the row separated by a space
     for (i = 0; i < Mat.m ; i++) {
         for (j = 0; j < Mat.n ; j++) {
             out << Mat.data[i][j] << " ";
@@ -187,9 +191,7 @@ ostream& operator <<(ostream& out, const Matrix& Mat){
 
 // Overloaded multiplication operator
 Matrix operator *(const Matrix& Mat1, const Matrix& Mat2){
-    
-
-    
+      
     // First matrix columns must match rows of second matrix for multiplication.
     if( Mat1.n != Mat2.m ){
         cout << "Columns of first matrix do not match rows of second matrix." << endl;
@@ -198,11 +200,10 @@ Matrix operator *(const Matrix& Mat1, const Matrix& Mat2){
     // Getting past the if statement means we have valid multiplication dimensions.
     else {
         // i for Mat1 rows, j for Mat2 columns, k for Mat2 rows and Mat1 columns.
-        int i, j, k;
-        
+        int i, j, k;      
         // Product matrix dimensions is first matrix rows by second matrix columns.
         Matrix multMat( Mat1.m , Mat2.n );
-        
+        // Initialize sum to zero.
         int sum = 0;
         
         // For each row of Mat1 and for each column of Mat2, multiply the matrices.
@@ -275,6 +276,7 @@ Matrix operator -(const Matrix& Mat1){
     
     Matrix minusMat( Mat1.m , Mat1.n );
     int i, j;
+    // Swap the signs for each element in the matrix.
     for (i = 0; i < Mat1.m ; i++) {
         for (j = 0; j < Mat1.n ; j++)
             minusMat.data[i][j] = (Mat1.data[i][j])*(-1);
@@ -290,7 +292,7 @@ bool operator ==(const Matrix& Mat1, const Matrix& Mat2){
     if( ( Mat1.m != Mat2.m ) || ( Mat1.n != Mat2.n ) ){
         return false;
     }
-    // Now check if every element is the same.
+    // Now check if every element in both matrices is the same.
     else {
         int i, j;
         for (i = 0; i < Mat1.m; i++) {
@@ -326,44 +328,51 @@ Matrix& Matrix::operator=(const Matrix& Mat2){
 
 int main() {
     
+    // Prompts indicate what dimensions should be entered for this program.
+    // Functions are generalized, but assignment asks for 3x2 and 2x2 for simplicity.
     cout << "Make Zero Matrix. Make sure dimensions are 3x2." << endl;
     Matrix Z;
     cout << "**Matrix Z** Zero Matrix:" << endl;
     cout << Z;
 
-    ifstream fin;
+    ifstream fin; // Declare our file pointer and open our input file.
     fin.open("file.txt");
     
+    // A is first inputted Matrix from file.
     cout << "**Matrix A** input from file. Make sure dimensions are 3x2." << endl;
     Matrix A;
     fin >> A;
     cout << A;
     
+    // Matrix B is a copy of A.
     Matrix B(A);
     cout << "**Matrix B** copy of A:" << endl;
     cout << B;
     
+    // Check that our copy constructor works.
     if( B==A )
         cout << "Yes, A and B are the same.\n" << endl;
     
+    // C is second inputted Matrix from file.
     cout << "**Matrix C** input from file. Make sure dimensions are 3x2." << endl;
     Matrix C;
     fin >> C;
     cout << C;
     fin.close(); // We are now done with our input file, so close it.
     
+    // E is a matrix of 1-diagonal.
     cout << "Make diagonal matrix of 1s. Make sure dimensions are 2x2." << endl;
     Matrix E(1);
     cout << "**Matrix E** Matrix of 1-diagonal:" << endl;
     cout << E;
     
+    // D is a matrix of 2-diagonal.
     cout << "Make diagonal matrix of 2s. Make sure dimensions are 2x2." << endl;
     Matrix D(2);
     cout << "**Matrix D** Matrix of 2-diagonal:" << endl;
     cout << D;
     
-    // Check the overloaded operators
-    
+    // Check the overloaded operators that aren't assignment operator.   
     if( A==B && !(A==C) )
         cout << "A == B, but A != C." << endl;
     
@@ -379,8 +388,7 @@ int main() {
     if( A*E==A )
         cout << "A*E == A is true.\n" << endl;
     
-    // Check assignment operator
-    
+    // Check assignment operator.
     cout << "Now assign C to A." << endl;
     A=C; // Set Matrix A to C.
     if( !(A==B) )
